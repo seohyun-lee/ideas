@@ -11,6 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
+    <!-- OBJ Exporter 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/OBJExporter.js"></script>
     <script src="https://unpkg.com/ccapture.js@1.1.0/build/CCapture.all.min.js"></script>
     
     <style>
@@ -176,10 +178,18 @@
             gap: 8px;
             font-family: 'Pretendard', sans-serif;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         button:hover { background-color: #4752c4; }
         button:disabled { background-color: #3f4147; color: #72767d; cursor: not-allowed; }
+
+        .btn-secondary {
+            background-color: #404249;
+            border: 1px solid #4f545c;
+        }
+        .btn-secondary:hover {
+            background-color: #4f545c;
+        }
 
         #loading-overlay {
             position: absolute;
@@ -298,6 +308,9 @@
             <button id="recordBtn">
                 GIF 생성<br>(3초 녹화)
             </button>
+            <button id="exportBtn" class="btn-secondary">
+                모델 다운로드 (.OBJ)
+            </button>
         </div>
     </div>
 
@@ -340,7 +353,8 @@
             bgColor: document.getElementById('bgColor'),
             bgColorRow: document.getElementById('bgColorRow'),
             
-            recordBtn: document.getElementById('recordBtn')
+            recordBtn: document.getElementById('recordBtn'),
+            exportBtn: document.getElementById('exportBtn')
         };
         
         // --- 1. GIF Worker Setup ---
@@ -646,6 +660,28 @@
 
         // --- Recording Logic ---
         ui.recordBtn.addEventListener('click', startRecording);
+        
+        // --- Export Model Logic ---
+        ui.exportBtn.addEventListener('click', exportModel);
+
+        function exportModel() {
+            if (!textGroup) return;
+            
+            // Create Exporter
+            const exporter = new THREE.OBJExporter();
+            const result = exporter.parse(textGroup);
+            
+            // Create Blob and Download
+            const blob = new Blob([result], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `discord_3d_text_${Date.now()}.obj`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
 
         function startRecording() {
             if (isRecording) return;
