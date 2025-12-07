@@ -43,7 +43,6 @@
             background-color: #44ff44;
             box-shadow: 0 0 5px #44ff44;
         }
-        /* 소리 안내 아이콘 */
         .sound-icon {
             display: inline-block;
             margin-left: 10px;
@@ -69,14 +68,47 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase 설정 및 초기화 ---
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app';
+        // ==================================================================================
+        // [GitHub Actions 배포용 설정]
+        // 로컬에서는 'REPLACE_ME...' 문자열이 그대로 있어서 오류가 날 수 있습니다.
+        // 배포 시 GitHub Actions가 이 문자열을 실제 JSON 설정으로 교체합니다.
+        // ==================================================================================
+        
+        let firebaseConfig;
+        let appId = 'fireworks-game-v1';
+
+        // 1. 프리뷰 환경 (수정 불필요)
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+            if (typeof __app_id !== 'undefined') appId = __app_id;
+        } 
+        // 2. GitHub Pages 배포 환경
+        else {
+            // 따옴표 안에 있는 문자열이 GitHub Actions에 의해 교체될 타겟입니다.
+            const configStr = 'REPLACE_ME_WITH_FIREBASE_CONFIG';
+
+            try {
+                // 배포된 환경이라면 configStr이 JSON 문자열로 바뀌어 있을 것입니다.
+                firebaseConfig = JSON.parse(configStr);
+            } catch (e) {
+                console.warn("Firebase 설정이 아직 주입되지 않았습니다. (로컬 실행 중이거나 배포 설정 오류)");
+                // 로컬 테스트를 위해 임시로 아래에 설정을 넣어서 쓸 수도 있습니다.
+                // firebaseConfig = { ... } 
+            }
+        }
+
+        // --- Firebase 초기화 ---
+        // config가 없으면 앱이 멈추므로 방어 코드 추가
+        let app, auth, db;
+        if (firebaseConfig) {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } else {
+            document.getElementById('status-text').innerText = "설정 오류 (Console 확인)";
+        }
         
         // 상태 변수
         let currentUser = null;
@@ -129,9 +161,9 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             const t = audioCtx.currentTime;
-            const duration = 1.2; // 여운을 더 길게
+            const duration = 1.2;
 
-            // 1. 노이즈 (퍼버벙 - 질감 담당)
+            // Noise
             const source = audioCtx.createBufferSource();
             source.buffer = noiseBuffer;
             source.playbackRate.value = 0.6; // 재생 속도를 낮춰서 노이즈 톤을 낮게 만듦
@@ -241,9 +273,8 @@
                 this.distanceTraveled = calculateDistance(this.sx, this.sy, this.x + vx, this.y + vy);
 
                 if (this.distanceTraveled >= this.distanceToTarget) {
-                    // 목표 도달 시 폭발
                     createParticles(this.tx, this.ty, this.color);
-                    playExplosionSound(); // 폭발음 재생
+                    playExplosionSound();
                     fireworks.splice(index, 1);
                 } else {
                     this.x += vx;
@@ -300,7 +331,6 @@
                 ctx.beginPath();
                 ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
                 ctx.lineTo(this.x, this.y);
-                // 입력받은 컬러를 기반으로 반짝임 효과
                 ctx.strokeStyle = this.baseColor.replace(')', `, ${this.alpha})`).replace('rgb', 'rgba').replace('hsl', 'hsla');
                 ctx.stroke();
             }
@@ -313,11 +343,8 @@
             }
         }
 
-        // 메인 애니메이션 루프
         function loop() {
             requestAnimationFrame(loop);
-            
-            // 궤적 남기기 (투명한 검은색으로 덮어쓰기)
             ctx.globalCompositeOperation = 'destination-out';
             ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
             ctx.fillRect(0, 0, cw, ch);
@@ -336,10 +363,9 @@
             }
         }
 
-        // --- Firebase 인증 및 데이터 동기화 ---
-
-        // 1. 인증 처리
+        // --- Auth & Data Sync ---
         async function initAuth() {
+            if (!auth) return;
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
@@ -354,21 +380,22 @@
 
         initAuth();
 
-        // 2. 인증 상태 감지 및 DB 리스너 연결
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('status-dot').classList.add('connected');
-                document.getElementById('status-text').innerText = "온라인 (참여 중)";
-                setupFirestoreListener(user);
-            } else {
-                document.getElementById('status-dot').classList.remove('connected');
-                document.getElementById('status-text').innerText = "연결 끊김";
-            }
-        });
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('status-dot').classList.add('connected');
+                    document.getElementById('status-text').innerText = "온라인 (참여 중)";
+                    setupFirestoreListener(user);
+                } else {
+                    document.getElementById('status-dot').classList.remove('connected');
+                    document.getElementById('status-text').innerText = "연결 끊김";
+                }
+            });
+        }
 
-        // 3. Firestore 리스너 (불꽃놀이 데이터 수신)
         function setupFirestoreListener(user) {
+            if (!db) return;
             const fireworksRef = collection(db, 'artifacts', appId, 'public', 'data', 'fireworks');
             const startTime = Date.now();
 
