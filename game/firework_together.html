@@ -79,6 +79,8 @@
         let firebaseConfig;
         let appId = 'fireworks-game-v1';
         let isRealtimeMode = false;
+        let currentUser = null;
+        let myColor = `hsl(${Math.random() * 360}, 100%, 50%)`; // 내 고유 색상
 
         // 1. 프리뷰 환경 (수정 불필요)
         if (typeof __firebase_config !== 'undefined') {
@@ -114,9 +116,7 @@
             currentUser = { uid: 'local-user' };
         }
         
-        // 상태 변수
-        let currentUser = null;
-        let myColor = `hsl(${Math.random() * 360}, 100%, 50%)`; // 내 고유 색상
+        // 상태 변수 (currentUser는 위에서 선언)
 
         // --- Audio System (Web Audio API) ---
         let audioCtx = null;
