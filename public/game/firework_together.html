@@ -78,6 +78,7 @@
         
         let firebaseConfig;
         let appId = 'fireworks-game-v1';
+        let isRealtimeMode = false;
 
         // 1. 프리뷰 환경 (수정 불필요)
         if (typeof __firebase_config !== 'undefined') {
@@ -106,8 +107,11 @@
             app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
+            isRealtimeMode = true;
         } else {
-            document.getElementById('status-text').innerText = "설정 오류 (Console 확인)";
+            document.getElementById('status-text').innerText = "로컬 모드 (서버 미연결)";
+            document.getElementById('status-dot').classList.add('connected');
+            currentUser = { uid: 'local-user' };
         }
         
         // 상태 변수
@@ -435,7 +439,9 @@
                 audioCtx.resume();
             }
 
-            if (!currentUser) return;
+            if (!currentUser) {
+                currentUser = { uid: 'local-user' };
+            }
 
             e.preventDefault();
             
@@ -454,6 +460,22 @@
             
             // 한 번에 발사할 폭죽 개수 랜덤 설정 (3~6개)
             const fireworkCount = Math.floor(random(3, 7));
+
+            // 실시간 모드가 아니거나 DB가 없는 경우 로컬로 바로 재생
+            if (!isRealtimeMode || !db) {
+                for (let i = 0; i < fireworkCount; i++) {
+                    const offsetX = random(-0.08, 0.08);
+                    const offsetY = random(-0.08, 0.08);
+                    const targetRatioX = Math.max(0.05, Math.min(0.95, ratioX + offsetX)); 
+                    const targetRatioY = Math.max(0.05, Math.min(0.8, ratioY + offsetY));
+
+                    setTimeout(() => {
+                        launchFirework(targetRatioX, targetRatioY, myColor);
+                    }, i * 80);
+                }
+                return;
+            }
+
             const fireworksRef = collection(db, 'artifacts', appId, 'public', 'data', 'fireworks');
 
             for (let i = 0; i < fireworkCount; i++) {
