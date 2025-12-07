@@ -77,17 +77,17 @@ const games = [
 ];
 
 const webExperiments = [
-  {
-    id: 'aws-architect',
-    title: 'AWS Architecture Tool',
-    description: '구성요소를 드래그해 다이어그램 작성',
-    path: 'web/aws-architect',
-    color: 'bg-indigo-500',
-    icon: <Layers size={20} className="text-white" />,
-    type: 'react',
-    component: SimpleAwsArchitect,
-    tags: ['diagram', 'dragdrop'],
-  },
+  // {
+  //   id: 'aws-architect',
+  //   title: 'AWS Architecture Tool',
+  //   description: '구성요소를 드래그해 다이어그램 작성',
+  //   path: 'web/aws-architect',
+  //   color: 'bg-indigo-500',
+  //   icon: <Layers size={20} className="text-white" />,
+  //   type: 'react',
+  //   component: SimpleAwsArchitect,
+  //   tags: ['diagram', 'dragdrop'],
+  // },
   {
     id: '3d-text-gif-maker',
     title: '3D Text & GIF Maker',
