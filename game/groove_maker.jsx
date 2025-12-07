@@ -7,14 +7,14 @@ import {
 
 // 음계 데이터 (C Major Scale) - 선명한 500번대 색상 및 Glow 유지
 const NOTES = [
-  { name: 'C5', freq: 523.25, color: 'bg-rose-500', glow: '#f43f5e' },
-  { name: 'B4', freq: 493.88, color: 'bg-orange-500', glow: '#f97316' },
-  { name: 'A4', freq: 440.00, color: 'bg-amber-500', glow: '#f59e0b' },
-  { name: 'G4', freq: 392.00, color: 'bg-yellow-500', glow: '#eab308' },
-  { name: 'F4', freq: 349.23, color: 'bg-emerald-500', glow: '#10b981' },
-  { name: 'E4', freq: 329.63, color: 'bg-cyan-500', glow: '#06b6d4' },
-  { name: 'D4', freq: 293.66, color: 'bg-blue-500', glow: '#3b82f6' },
-  { name: 'C4', freq: 261.63, color: 'bg-indigo-500', glow: '#6366f1' },
+  { name: 'C5', freq: 523.25, color: 'bg-rose-400', glow: '#f43f5e' },
+  { name: 'B4', freq: 493.88, color: 'bg-orange-400', glow: '#f97316' },
+  { name: 'A4', freq: 440.00, color: 'bg-amber-400', glow: '#f59e0b' },
+  { name: 'G4', freq: 392.00, color: 'bg-yellow-400', glow: '#eab308' },
+  { name: 'F4', freq: 349.23, color: 'bg-emerald-400', glow: '#10b981' },
+  { name: 'E4', freq: 329.63, color: 'bg-cyan-400', glow: '#06b6d4' },
+  { name: 'D4', freq: 293.66, color: 'bg-blue-400', glow: '#3b82f6' },
+  { name: 'C4', freq: 261.63, color: 'bg-indigo-400', glow: '#6366f1' },
 ];
 
 const STEPS_PER_BAR = 16;
@@ -37,6 +37,7 @@ const THEMES = {
     gridBase: 'bg-black/20', 
     playhead: 'bg-[#cbe4de]',
     sliderTrack: 'bg-[#0e8388]/40',
+    popupBg: 'bg-[#2c3333]/40', popupBorder: 'border-[#4e6f6f]/50'
   },
   space: {
     id: 'space',
@@ -54,6 +55,7 @@ const THEMES = {
     activeGlow: 'shadow-[0_0_20px_rgba(165,180,252,0.6)]',
     playhead: 'bg-indigo-400',
     sliderTrack: 'bg-slate-700',
+    popupBg: 'bg-[#0f172a]/40', popupBorder: 'border-indigo-500/30'
   },
   winter: {
     id: 'winter',
@@ -71,6 +73,7 @@ const THEMES = {
     activeGlow: 'shadow-[0_0_15px_rgba(56,189,248,0.5)] ring-2 ring-sky-200',
     playhead: 'bg-sky-400',
     sliderTrack: 'bg-slate-300',
+    popupBg: 'bg-white/40', popupBorder: 'white',
   },
   cyber: {
     id: 'cyber',
@@ -88,6 +91,7 @@ const THEMES = {
     activeGlow: 'shadow-[0_0_10px_#22c55e]',
     playhead: 'bg-green-500',
     sliderTrack: 'bg-zinc-700',
+    popupBg: 'bg-zinc-900/40', popupBorder: 'border-green-500/30'
   }
 };
 
@@ -318,7 +322,7 @@ export default function CompositionGame() {
           <div className="text-center md:text-left">
             <h1 className="text-3xl font-serif font-bold tracking-wide mb-1 flex items-center justify-center md:justify-start gap-3">
               <Music size={24} className="opacity-80" />
-              Groove Maker <span className="text-xs font-sans font-normal opacity-50 border border-current px-2 rounded-full">PRO</span>
+              Groove Maker <span className="text-xs font-sans font-normal opacity-50 border border-current px-2 rounded-full">Demo</span>
             </h1>
             <p className="text-sm opacity-60 font-serif italic ml-1">{currentTheme.desc}</p>
           </div>
@@ -370,43 +374,38 @@ export default function CompositionGame() {
                   <Activity size={18} />
                 </button>
                 
-                {/* Drums (Popup UPWARDS) */}
+                {/* 🥁 Drum Button & Popup */}
                 <div className="relative group">
                   <button
                     onClick={() => { initAudio(); setIsDrumMasterActive(!isDrumMasterActive); }}
-                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${
-                       isDrumMasterActive 
-                       ? `${currentTheme.accent} shadow-sm` 
-                       : 'bg-black/5 hover:bg-black/10'
-                    }`}
-                    title="Drums"
+                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${isDrumMasterActive ? `${currentTheme.accent} shadow-md` : 'bg-black/5 hover:bg-black/10'}`}
                   >
                     <Disc size={18} className={isDrumMasterActive ? 'animate-spin-slow' : ''} />
                   </button>
                   
-                  {/* 드럼 팝업 */}
+                  {/* Dynamic Themed Popup */}
                    <div className={`
-                      absolute bottom-full left-1/2 -translate-x-1/2 mb-3 p-2 bg-[#2a2a2a] border border-white/10 rounded-2xl shadow-2xl flex gap-1 z-50 backdrop-blur-xl transition-all duration-200 origin-bottom
+                      absolute bottom-full left-1/2 -translate-x-1/2 mb-3 p-2 
+                      ${currentTheme.popupBg} border ${currentTheme.popupBorder}
+                      rounded-2xl shadow-2xl flex gap-1 z-50 backdrop-blur-xl transition-all duration-200 origin-bottom 
                       ${isDrumMasterActive ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-2 pointer-events-none'}
                   `}>
-                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#2a2a2a] border-b border-r border-white/10 rotate-45"></div>
-                    
-                    {[
-                        { id: 'kick', label: 'K' }, 
-                        { id: 'snare', label: 'S' }, 
-                        { id: 'hihat', label: 'H' }, 
-                        { id: 'cymbal', label: 'C' }
-                    ].map((drum) => (
-                      <button
-                        key={drum.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDrumState(prev => ({...prev, [drum.id]: !prev[drum.id]}));
-                        }}
+                    {/* Background Mask to hide the main border line */}
+                    {/* <div className={`absolute -bottom-[1px] left-1/2 -translate-x-1/2 w-4 h-[3px] ${currentTheme.popupBg}`}></div> */}
+
+                    {/* Speech Bubble Tail */}
+                    {/* <div className={`absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 ${currentTheme.popupBg} border-b border-r ${currentTheme.popupBorder} rotate-45`}></div> */}
+                  
+
+                    {[{ id: 'kick', label: 'K' }, { id: 'snare', label: 'S' }, { id: 'hihat', label: 'H' }, { id: 'cymbal', label: 'C' }].map((drum) => (
+                      <button 
+                        key={drum.id} 
+                        onClick={(e) => { e.stopPropagation(); setDrumState(prev => ({...prev, [drum.id]: !prev[drum.id]})); }} 
                         className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-                          drumState[drum.id] ? 'bg-white/20 text-white font-bold ring-1 ring-white/30' : 'text-white/30 hover:bg-white/5'
+                          drumState[drum.id] 
+                            ? `${currentTheme.accent} font-bold ring-1 ring-white/30 shadow-md` 
+                            : 'text-white/30 hover:bg-white/5'
                         }`}
-                        title={drum.id}
                       >
                          <span className="text-[10px]">{drum.label}</span>
                          {drumState[drum.id] && <div className="absolute bottom-1.5 w-1 h-1 bg-white rounded-full shadow-[0_0_4px_white]" />}
@@ -414,10 +413,8 @@ export default function CompositionGame() {
                     ))}
                   </div>
                 </div>
-
-                {/* Divider */}
-                <div className="w-px h-6 bg-current opacity-10 mx-1" />
-
+                <div className="w-px h-6 bg-current opacity-20 mx-1" />
+                
                 {/* Length */}
                 <div className="flex gap-1">
                   {[1, 2, 4, 8].map((bar) => (

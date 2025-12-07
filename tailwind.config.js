@@ -1,13 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './index.jsx', './game/**/*.{js,jsx}', './web/**/*.{js,jsx}'],
+  content: [
+    "./index.html",
+    "./main.jsx",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./game/**/*.{js,ts,jsx,tsx,html}",
+    "./web/**/*.{js,ts,jsx,tsx,html}",
+  ],
   theme: {
-    extend: {
-      fontFamily: {
-        display: ['Space Grotesk', 'Pretendard', 'Inter', 'system-ui', 'sans-serif'],
-        body: ['Inter', 'system-ui', 'sans-serif'],
-      },
-    },
+    extend: {},
   },
   plugins: [],
-};
+}

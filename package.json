@@ -4,12 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run sync-static && vite",
+    "sync-static": "node scripts/sync-static.mjs",
+    "build": "npm run sync-static && vite build",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist -t true"
   },
   "dependencies": {
+    "firebase": "^12.6.0",
     "lucide-react": "^0.323.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
