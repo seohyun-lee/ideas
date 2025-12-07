@@ -346,8 +346,8 @@ export default function CompositionGame() {
         </div>
 
         {/* 메인 컨트롤러 패널 (박스 제거, 우측 슬라이더만 박스) */}
-        <div className="flex items-center justify-between gap-4 mb-8 px-2 overflow-visible">
-          
+        <div className="flex flex-col md:flex-row items-center md:justify-between gap-4 mb-8 px-2">
+
           {/* [LEFT] 조작부: 컨테이너 없음 */}
           <div className="flex items-center gap-4 flex-nowrap">
             
